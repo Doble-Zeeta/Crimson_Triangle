@@ -1,19 +1,17 @@
 package dev.doblezeta.crimsontriangle.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -29,23 +27,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.doblezeta.crimsontriangle.R
-import dev.doblezeta.crimsontriangle.ui.components.AboutButton
+import dev.doblezeta.crimsontriangle.ui.components.BotonesDeAbajo
+import dev.doblezeta.crimsontriangle.ui.components.BtnDescargar
 import dev.doblezeta.crimsontriangle.ui.components.LinkText
 import dev.doblezeta.crimsontriangle.ui.components.SelectorDeFormatos
 import dev.doblezeta.crimsontriangle.ui.theme.CrimsonTriangleTheme
+import dev.doblezeta.crimsontriangle.ui.utils.abrirDescargasFolder
+import dev.doblezeta.crimsontriangle.ui.utils.Descargador
 import kotlinx.coroutines.launch
 
 
 @Composable
 fun PantalladeInicio(modifier: Modifier = Modifier) {
-
     val snackbarHostState = remember {
         SnackbarHostState()
     }
+
+    val context = LocalContext.current
 
     val scope = rememberCoroutineScope()
 
@@ -97,7 +100,7 @@ fun PantalladeInicio(modifier: Modifier = Modifier) {
             val name = "Bienvenido a CrimsonTriangle"
 
             Image(
-                painter = painterResource(R.drawable.logo),
+                painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Logo Crimson Triangle",
                 modifier = Modifier.size(128.dp)
             )
@@ -123,7 +126,8 @@ fun PantalladeInicio(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                "Formato", modifier = Modifier.align(Alignment.Start)
+                "Formato", modifier = Modifier
+                    .align(Alignment.Start)
                     .padding(start = 45.dp)
             )
 
@@ -135,9 +139,7 @@ fun PantalladeInicio(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-
-
-            Button(
+            BtnDescargar(
                 onClick = {
                     if (enlace.isBlank()) {
                         scope.launch {
@@ -145,28 +147,30 @@ fun PantalladeInicio(modifier: Modifier = Modifier) {
                                 message = "Debe ingresar un link primero"
                             )
                         }
-
+                        return@BtnDescargar
                     }
+                    Thread{
+                        try {
+                            Descargador.descargar(
+                                context = context,
+                                url = enlace
+                            )
+                        }
+                        catch (e: Exception) {
+                            Log.e("CrimsonTriangle", "DOWNLOAD ERROR", e)
+                        }
+                    }.start()
                 },
-                modifier = Modifier.align(
-                    Alignment.CenterHorizontally
-                )
-            ) {
-                Text("Descargar")
-            }
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+
             Spacer(modifier = Modifier.height(10.dp))
 
-            Row(modifier = Modifier.padding(all = 10.dp)) {
-
-                Button(onClick = {}) {
-                    Text("Abrir")
+            BotonesDeAbajo(
+                onAbrir = {
+                    abrirDescargasFolder(context)
                 }
-
-                Spacer(modifier = Modifier.width(80.dp))
-
-
-                AboutButton()
-            }
+            )
         }
     }
 }

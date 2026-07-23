@@ -1,36 +1,48 @@
 package dev.doblezeta.crimsontriangle
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import dev.doblezeta.crimsontriangle.ui.theme.CrimsonTriangleTheme
+import com.yausername.youtubedl_android.YoutubeDL
 import dev.doblezeta.crimsontriangle.ui.screens.PantalladeInicio
+import dev.doblezeta.crimsontriangle.ui.theme.CrimsonTriangleTheme
+import java.io.File
 
 class MainActivity : ComponentActivity() {
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
+
+        try {
+            val dir = File(applicationInfo.nativeLibraryDir)
+
+            Log.e("LIBS", "DIR = ${dir.absolutePath}")
+            Log.e("LIBS", "exists = ${dir.exists()}")
+            Log.e("LIBS", "isDirectory = ${dir.isDirectory}")
+
+            val files = dir.listFiles()
+
+            Log.e("LIBS", "files = ${files?.size}")
+
+            files?.forEach {
+                Log.e("LIBS", it.name)
+            }
+
+            YoutubeDL.getInstance().init(this)
+            android.util.Log.d("CrimsonTriangle", "YoutubeDL inicializado")
+        } catch (e: Exception) {
+            android.util.Log.e("CrimsonTriangle", "INIT ERROR", e)
+        }
+
         enableEdgeToEdge()
         setContent {
             CrimsonTriangleTheme {

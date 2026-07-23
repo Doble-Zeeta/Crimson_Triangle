@@ -5,11 +5,7 @@ plugins {
 
 android {
     namespace = "dev.doblezeta.crimsontriangle"
-    compileSdk {
-        version = release(37) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "dev.doblezeta.crimsontriangle"
@@ -17,6 +13,7 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
+
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -35,6 +32,12 @@ android {
     buildFeatures {
         compose = true
     }
+
+    packaging{
+        jniLibs{
+            useLegacyPackaging = true
+        }
+    }
 }
 
 dependencies {
@@ -51,6 +54,10 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+    implementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation(libs.youtubedl.android.library)
+    implementation(libs.youtubedl.android.ffmpeg)
+    implementation(libs.youtubedl.android.aria2c)
+
 }
