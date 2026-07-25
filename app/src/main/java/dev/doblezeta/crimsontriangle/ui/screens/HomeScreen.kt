@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,11 +40,14 @@ import dev.doblezeta.crimsontriangle.ui.components.SelectorDeFormatos
 import dev.doblezeta.crimsontriangle.ui.theme.CrimsonTriangleTheme
 import dev.doblezeta.crimsontriangle.ui.utils.abrirDescargasFolder
 import dev.doblezeta.crimsontriangle.ui.utils.Descargador
+import dev.doblezeta.crimsontriangle.ui.utils.EstadoDeDescarga
 import kotlinx.coroutines.launch
 
 
 @Composable
-fun PantalladeInicio(modifier: Modifier = Modifier) {
+fun PantalladeInicio(modifier: Modifier = Modifier,
+                     enlaceInicial: String = ""
+) {
     val snackbarHostState = remember {
         SnackbarHostState()
     }
@@ -54,10 +58,11 @@ fun PantalladeInicio(modifier: Modifier = Modifier) {
 
     val lsformatos = listOf(
         "Mejor Calidad",
-        "Solo audio (MP3)",
         "MP4 1080p",
         "MP4 720p",
         "MP4 480p",
+        "Audio Flac",
+        "Audio MP3",
         "Playlist MP4",
         "Playlist MP3",
         "WEBM"
@@ -111,8 +116,8 @@ fun PantalladeInicio(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(25.dp))
 
-            var enlace by remember {
-                mutableStateOf(value = "")
+            var enlace by rememberSaveable(enlaceInicial) {
+                mutableStateOf(value = enlaceInicial)
             }
 
 
@@ -149,11 +154,57 @@ fun PantalladeInicio(modifier: Modifier = Modifier) {
                         }
                         return@BtnDescargar
                     }
+
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = "Descargando..",
+                            withDismissAction = true
+                        )
+                    }
+
                     Thread{
                         try {
                             Descargador.descargar(
-                                context = context,
-                                url = enlace
+                                url = enlace,
+                                formato = ctrlFormatoSeleccionado,
+                                onEstado = {
+                                    estado ->
+
+                                    scope.launch {
+                                        snackbarHostState.currentSnackbarData?.dismiss()
+
+                                        val mensaje = when (estado) {
+
+                                            EstadoDeDescarga.Preparando ->
+                                                "Preparando descarga.."
+
+                                            is EstadoDeDescarga.Descargando ->
+                                                "Descargando ${estado.nombre}"
+
+                                            EstadoDeDescarga.Uniendo ->
+                                                "Uniendo audio y video.."
+
+                                            EstadoDeDescarga.Extrayendo ->
+                                                "Extrayendo audio.."
+
+                                            EstadoDeDescarga.Finalizando ->
+                                                "Finalizando.."
+
+                                            EstadoDeDescarga.Completada ->
+                                                "Descarga Completada"
+
+                                            is EstadoDeDescarga.Error ->
+                                                estado.mensaje
+                                        }
+
+                                        snackbarHostState.showSnackbar(
+                                            message = mensaje,
+                                            withDismissAction = true
+                                        )
+
+                                    }
+
+                                }
                             )
                         }
                         catch (e: Exception) {

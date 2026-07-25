@@ -26,10 +26,11 @@ fun SelectorDeFormatos(
     }
     val lsformatos = listOf(
         "Mejor Calidad",
-        "Solo audio (MP3)",
         "MP4 1080p",
         "MP4 720p",
         "MP4 480p",
+        "Audio Flac",
+        "Audio MP3",
         "Playlist MP4",
         "Playlist MP3",
         "WEBM"
